@@ -11,5 +11,26 @@ class FirebaseHalper {
   }
 
   final Stream<QuerySnapshot> chatStream =
-      FirebaseFirestore.instance.collection('chat').snapshots();
+      FirebaseFirestore.instance.collection('chat').orderBy(field).snapshots();
+  final CollectionReference _chatCollection =
+      FirebaseFirestore.instance.collection('chat');
+
+  snapToList({snapshot}) {
+    final _chatList = [];
+    snapshot.data!.docs.map((doc) {
+      Map _chat = doc.data();
+      _chatList.add(_chat);
+    }).toList();
+    return _chatList;
+  }
+
+  Future sendChat({int? lastIndex, String? message, String? sender}) {
+    int id = lastIndex! + 1;
+    return _chatCollection
+        .add({'id': id, 'message': message, 'sender': sender})
+        .then((value) => print('message send'))
+        .onError((error, stackTrace) {
+          print(error);
+        });
+  }
 }
